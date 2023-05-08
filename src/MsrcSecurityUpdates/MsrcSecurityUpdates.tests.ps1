@@ -20,7 +20,6 @@ Get-Help Get-MsrcCvrfAffectedSoftware -Examples
 #>
 
 Describe 'Function: Get-MsrcSecurityUpdateMSRC (calls the /Updates API)' -Tag 'UpdatesAPICall' {
-
     It 'Get-MsrcSecurityUpdate - all' {
         Get-MsrcSecurityUpdate |
         Should Not BeNullOrEmpty
@@ -58,9 +57,11 @@ Describe 'Function: Get-MsrcSecurityUpdateMSRC (calls the /Updates API)' -Tag 'U
 }
 
 Describe 'Function: Get-MsrcCvrfDocument (calls the MSRC /cvrf API)' -Tag 'cvrfAPI' {
-
+    BeforeAll {
+        $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
+    }
     It 'Get-MsrcCvrfDocument - 2016-Nov' {
-        Get-MsrcCvrfDocument -ID 2016-Nov |
+        $cvrfDocument |
         Should Not BeNullOrEmpty
     }
 
@@ -117,29 +118,34 @@ Describe 'Function: Set-MSRCConfig with proxy' -Tag 'ApiConfig' {
 #     }
 # }
 InModuleScope MsrcSecurityUpdates {
+
     Describe 'Function: Get-MsrcCvrfAffectedSoftware' -Tag 'Get-MsrcCvrfAffectedSoftware' {
+        BeforeAll {
+            $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
+        }
         It 'Get-MsrcCvrfAffectedSoftware by pipeline' {
-            Get-MsrcCvrfDocument -ID 2016-Nov |
+            $cvrfDocument |
             Get-MsrcCvrfAffectedSoftware |
             Should Not BeNullOrEmpty
         }
 
         It 'Get-MsrcCvrfAffectedSoftware by parameters' {
-            $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
             Get-MsrcCvrfAffectedSoftware -Vulnerability $cvrfDocument.Vulnerability -ProductTree $cvrfDocument.ProductTree |
             Should Not BeNullOrEmpty
         }
     }
 
     Describe 'Function: Get-MsrcCvrfProductVulnerability' -Tag 'Get-MsrcCvrfProductVulnerability' {
+        BeforeAll {
+            $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
+        }
         It 'Get-MsrcCvrfProductVulnerability by pipeline' {
-            Get-MsrcCvrfDocument -ID 2016-Nov |
+            $cvrfDocument |
             Get-MsrcCvrfProductVulnerability |
             Should Not BeNullOrEmpty
         }
 
         It 'Get-MsrcCvrfProductVulnerability by parameters' {
-            $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
             Get-MsrcCvrfProductVulnerability -Vulnerability $cvrfDocument.Vulnerability -ProductTree $cvrfDocument.ProductTree -DocumentTracking $cvrfDocument.DocumentTracking -DocumentTitle $cvrfDocument.DocumentTitle  |
             Should Not BeNullOrEmpty
         }
@@ -147,9 +153,12 @@ InModuleScope MsrcSecurityUpdates {
 }
 
 Describe 'Function: Get-MsrcVulnerabilityReportHtml (generates the MSRC Vulnerability Summary HTML Report)' -Tag 'Get-MsrcVulnerabilityReportHtml' {
+    BeforeAll {
+        $cvrfDocument = Get-MsrcCvrfDocument -ID 2016-Nov
+    }
     It 'Vulnerability Summary Report - does not throw' {
         {
-            $null = Get-MsrcCvrfDocument -ID 2016-Nov |
+            $null = $cvrfDocument |
             Get-MsrcVulnerabilityReportHtml -Verbose:$false -ShowNoProgress -WarningAction SilentlyContinue
         } |
         Should Not Throw
@@ -169,11 +178,13 @@ Describe 'Function: Get-MsrcVulnerabilityReportHtml (generates the MSRC Vulnerab
 }
 
 InModuleScope MsrcSecurityUpdates {
+
 	Describe 'Function: Get-KBDownloadUrl (generates the html for KBArticle downloads used in the vulnerability report affected software table)' -Tag 'Get-KBDownloadUrl' {
+		BeforeAll {
+		    $af = Get-MsrcCvrfDocument -ID 2017-May | Get-MsrcCvrfAffectedSoftware
+		}
 		It 'Get-KBDownloadUrl by pipeline' {
 			{
-				$doc = Get-MsrcCvrfDocument -ID 2017-May
-				$af = $doc | Get-MsrcCvrfAffectedSoftware
 				$af.KBArticle | Get-KBDownloadUrl
 			} |
 			Should Not Throw
@@ -181,8 +192,6 @@ InModuleScope MsrcSecurityUpdates {
 
 		It 'Get-KBDownloadUrl by parameters' {
 			{
-				$doc = Get-MsrcCvrfDocument -ID 2017-May
-				$af = $doc | Get-MsrcCvrfAffectedSoftware
 				Get-KBDownloadUrl -KBArticleObject $af.KBArticle
 			} |
 			Should Not Throw
