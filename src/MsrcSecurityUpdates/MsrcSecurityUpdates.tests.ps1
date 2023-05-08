@@ -1,7 +1,9 @@
 ﻿
 # Import module would only work if the module is found in standard locations
 # Import-Module -Name MsrcSecurityUpdates -Force
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath 'MsrcSecurityUpdates.psd1') -Verbose -Force
+$Error.Clear()
+Get-Module -Name MsrcSecurityUpdates | Remove-Module -Force -Verbose:$false
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath 'MsrcSecurityUpdates.psd1') -Verbose:$false -Force
 
 <#
 Get-Help Get-MsrcSecurityUpdate
@@ -17,7 +19,7 @@ Get-Help Get-MsrcCvrfAffectedSoftware
 Get-Help Get-MsrcCvrfAffectedSoftware -Examples
 #>
 
-Describe 'Function: Get-MsrcSecurityUpdateMSRC (calls the /Updates API)' {
+Describe 'Function: Get-MsrcSecurityUpdateMSRC (calls the /Updates API)' -Tag 'UpdatesAPICall' {
 
     It 'Get-MsrcSecurityUpdate - all' {
         Get-MsrcSecurityUpdate |
@@ -55,7 +57,7 @@ Describe 'Function: Get-MsrcSecurityUpdateMSRC (calls the /Updates API)' {
     }
 }
 
-Describe 'Function: Get-MsrcCvrfDocument (calls the MSRC /cvrf API)' {
+Describe 'Function: Get-MsrcCvrfDocument (calls the MSRC /cvrf API)' -Tag 'cvrfAPI' {
 
     It 'Get-MsrcCvrfDocument - 2016-Nov' {
         Get-MsrcCvrfDocument -ID 2016-Nov |
@@ -68,6 +70,7 @@ Describe 'Function: Get-MsrcCvrfDocument (calls the MSRC /cvrf API)' {
     }
 
     Get-MsrcSecurityUpdate | Where-Object { $_.ID -ne '2017-May-B' } |
+    Where-Object { $_.ID -eq "$(((Get-Date).AddMonths(-1)).ToString('yyyy-MMM',[System.Globalization.CultureInfo]'en-US'))" } |
     Foreach-Object {
         It "Get-MsrcCvrfDocument - none shall throw: $($PSItem.ID)" {
             {
@@ -87,10 +90,10 @@ Describe 'Function: Get-MsrcCvrfDocument (calls the MSRC /cvrf API)' {
     }
 }
 
-Describe 'Function: Set-MSRCApiKey with proxy' {
+Describe 'Function: Set-MSRCConfig with proxy' -Tag 'ApiConfig' {
     if (-not ($global:msrcProxy)) {
 
-       Write-Warning -Message 'This test requires you to use Set-MSRCApiKey first to set your API Key and proxy details'
+       Write-Warning -Message 'This test requires you to use Set-MSRCConfig first to set proxy details'
        break
     }
 
@@ -114,7 +117,7 @@ Describe 'Function: Set-MSRCApiKey with proxy' {
 #     }
 # }
 InModuleScope MsrcSecurityUpdates {
-    Describe 'Function: Get-MsrcCvrfAffectedSoftware' {
+    Describe 'Function: Get-MsrcCvrfAffectedSoftware' -Tag 'Get-MsrcCvrfAffectedSoftware' {
         It 'Get-MsrcCvrfAffectedSoftware by pipeline' {
             Get-MsrcCvrfDocument -ID 2016-Nov |
             Get-MsrcCvrfAffectedSoftware |
@@ -128,7 +131,7 @@ InModuleScope MsrcSecurityUpdates {
         }
     }
 
-    Describe 'Function: Get-MsrcCvrfProductVulnerability' {
+    Describe 'Function: Get-MsrcCvrfProductVulnerability' -Tag 'Get-MsrcCvrfProductVulnerability' {
         It 'Get-MsrcCvrfProductVulnerability by pipeline' {
             Get-MsrcCvrfDocument -ID 2016-Nov |
             Get-MsrcCvrfProductVulnerability |
@@ -143,21 +146,22 @@ InModuleScope MsrcSecurityUpdates {
     }
 }
 
-Describe 'Function: Get-MsrcVulnerabilityReportHtml (generates the MSRC Vulnerability Summary HTML Report)' {
+Describe 'Function: Get-MsrcVulnerabilityReportHtml (generates the MSRC Vulnerability Summary HTML Report)' -Tag 'Get-MsrcVulnerabilityReportHtml' {
     It 'Vulnerability Summary Report - does not throw' {
         {
             $null = Get-MsrcCvrfDocument -ID 2016-Nov |
-            Get-MsrcVulnerabilityReportHtml -Verbose -ShowNoProgress
+            Get-MsrcVulnerabilityReportHtml -Verbose:$false -ShowNoProgress -WarningAction SilentlyContinue
         } |
         Should Not Throw
     }
 
     Get-MsrcSecurityUpdate | Where-Object { $_.ID -ne '2017-May-B' } |
+    Where-Object { $_.ID -eq "$(((Get-Date).AddMonths(-1)).ToString('yyyy-MMM',[System.Globalization.CultureInfo]'en-US'))" } |
     Foreach-Object {
         It "Vulnerability Summary Report - none shall throw: $($PSItem.ID)" {
             {
                 $null = Get-MsrcCvrfDocument -ID $PSItem.ID |
-                Get-MsrcVulnerabilityReportHtml -ShowNoProgress
+                Get-MsrcVulnerabilityReportHtml -ShowNoProgress -WarningAction SilentlyContinue
             } |
             Should Not Throw
         }
@@ -165,7 +169,7 @@ Describe 'Function: Get-MsrcVulnerabilityReportHtml (generates the MSRC Vulnerab
 }
 
 InModuleScope MsrcSecurityUpdates {
-	Describe 'Function: Get-KBDownloadUrl (generates the html for KBArticle downloads used in the vulnerability report affected software table)' {
+	Describe 'Function: Get-KBDownloadUrl (generates the html for KBArticle downloads used in the vulnerability report affected software table)' -Tag 'Get-KBDownloadUrl' {
 		It 'Get-KBDownloadUrl by pipeline' {
 			{
 				$doc = Get-MsrcCvrfDocument -ID 2017-May
@@ -174,7 +178,6 @@ InModuleScope MsrcSecurityUpdates {
 			} |
 			Should Not Throw
 		}
-
 
 		It 'Get-KBDownloadUrl by parameters' {
 			{
