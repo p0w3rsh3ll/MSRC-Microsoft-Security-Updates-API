@@ -80,12 +80,6 @@ Process {
 
     }
 
-    if ($global:MSRCAdalAccessToken) {
-
-        $RestMethod.Headers.Add('Authorization', $global:MSRCAdalAccessToken.CreateAuthorizationHeader())
-
-    }
-
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Write-Verbose -Message "Calling $($RestMethod.uri)"

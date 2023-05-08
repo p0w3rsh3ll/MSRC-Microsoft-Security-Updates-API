@@ -52,7 +52,6 @@ Function        Get-MsrcCvrfExploitabilityIndex                    1.8.7      Ms
 Function        Get-MsrcSecurityBulletinHtml                       1.8.7      MsrcSecurityUpdates
 Function        Get-MsrcSecurityUpdate                             1.8.7      MsrcSecurityUpdates
 Function        Get-MsrcVulnerabilityReportHtml                    1.8.7      MsrcSecurityUpdates
-Function        Set-MSRCAdalAccessToken                            1.8.7      MsrcSecurityUpdates
 Function        Set-MSRCApiKey                                     1.8.7      MsrcSecurityUpdates
 ```
 

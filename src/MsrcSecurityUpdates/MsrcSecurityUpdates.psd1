@@ -12,7 +12,7 @@
 RootModule = 'MsrcSecurityUpdates.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.9.9'
+ModuleVersion = '2.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -60,10 +60,7 @@ PowerShellVersion = '5.1'
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = @(
-    'Microsoft.IdentityModel.Clients.ActiveDirectory.dll'
-    'Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll'
-)
+# RequiredAssemblies = @()
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -88,7 +85,6 @@ FunctionsToExport = @(
     'Get-MsrcSecurityBulletinHtml',
     'Get-MsrcSecurityUpdate',
     'Get-MsrcVulnerabilityReportHtml',
-    'Set-MSRCAdalAccessToken',
     'Set-MSRCApiKey'
 )
 
@@ -129,6 +125,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+May 8, 2023 - Remove deprecated ADAL library
 April 18, 2023 - Adding compatibility with Linux
 April 17, 2023 - Add Exploitability Index Link
 April 13, 2023 - Update Exploitability Index Text
