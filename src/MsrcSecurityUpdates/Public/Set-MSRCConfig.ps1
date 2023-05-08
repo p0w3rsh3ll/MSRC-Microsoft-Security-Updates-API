@@ -1,9 +1,6 @@
-Function Set-MSRCApiKey {
+Function Set-MSRCConfig {
 [CmdletBinding(SupportsShouldProcess)]
 Param(
-	[Parameter(Mandatory)]
-	$ApiKey,
-
     [Parameter()]
     [System.Uri]$Proxy,
 
@@ -16,10 +13,7 @@ Param(
 )
 Begin {}
 Process {
-    if ($PSCmdlet.ShouldProcess($ApiKey,'Set item')) {
-
-	    $global:MSRCApiKey = $ApiKey
-        Write-Verbose -Message "Successfully set your API Key required by cmdlets of this module.  Calls to the MSRC APIs will now use your API key."
+    if ($PSCmdlet.ShouldProcess('Set MSRC Api Config')) {
 
         # we also set other shared variables
         $global:msrcApiUrl     = 'https://api.msrc.microsoft.com/cvrf/v2.0'
